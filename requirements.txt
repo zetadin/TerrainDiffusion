@@ -1,0 +1,7 @@
+pytorch >= 2.4.0
+lightning >= 2.4.0
+torchview >= 0.2.6
+tensorboard >= 2.17.1
+pytest >= 7.4.4
+matplotlib >= 3.9.2
+
