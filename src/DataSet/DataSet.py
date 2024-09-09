@@ -3,7 +3,7 @@ import torch
 import os
 import gc
 from glob import glob
-from torchvision.transforms import v2, InterpolationMode
+from torchvision.transforms import InterpolationMode
 from torchvision.io import read_image, ImageReadMode
 from torchvision.transforms.functional import rotate
 
