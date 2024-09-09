@@ -135,10 +135,12 @@ class TiledDataset(torch.utils.data.Dataset):
         """
         Returns the number of tiles in the dataset.
         """
-        # the number of tiles is the length of the list of tiles
         return len(self.tiles)
 
     def __getitem__(self, index):
+        """
+        Returns data for a single tile, transformed as requested.
+        """
         tile_data = self.tiles[index].getData(self.imgs)
 
         if self.transform:
