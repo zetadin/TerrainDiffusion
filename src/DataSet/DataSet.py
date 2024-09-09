@@ -51,7 +51,7 @@ class TiledDataset(torch.utils.data.Dataset):
         with tq.tqdm(total=len(data_files)*len(self.rotations)) as pbar:
             for f in data_files:
                 # update progress bar description
-                pbar.set_description(f"Rotating {f}")
+                pbar.set_description(f"Rotating {f.split('/')[-1]}")
                 
                 # read the image as greyscale with alpha
                 img = read_image(f, ImageReadMode.GRAY_ALPHA)
@@ -93,7 +93,7 @@ class TiledDataset(torch.utils.data.Dataset):
         with tq.tqdm(total=len(self.imgs)) as pbar:
             for k,img in self.imgs.items():
                 # update progress bar description
-                pbar.set_description(f"Tiling {k}")
+                pbar.set_description(f"Tiling {k.split('/')[-1]}")
 
                 # determine size of the image
                 shape = img.shape[1:]
