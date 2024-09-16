@@ -45,6 +45,8 @@ class TiledDataset(torch.utils.data.Dataset):
 
         self.imgs = {} # dict of rotated images
 
+        print("Building a dataset out of all pngs in", self.data_folder)
+
         # find all the png images in the data folder
         data_files = glob(f"{self.data_folder}/*.png")
 
