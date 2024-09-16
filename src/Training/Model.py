@@ -46,7 +46,7 @@ class TerGenUNet(L.LightningModule):
             norm_num_groups: number of channels in group normalization in the UNet
             """
         super().__init__()
-        self.save_hyperparameters()
+        self.save_hyperparameters(ignore=['invTrans'])
 
         self.n_inferences = n_inferences
         self.n_iter_train = n_iter_train
@@ -186,8 +186,7 @@ class TerGenUNet(L.LightningModule):
         self.val_MSE.reset()
 
         
-        if(self.trainer.current_epoch%10 == 0 
-           # and self.trainer.current_epoch > 0
+        if(self.trainer.current_epoch%5 == 4 # will match checkpointing frequency in training
           ):
             outs = self.invTrans(self.sample(4, seed=268711))
             images = [v2.functional.to_pil_image(outs[i,:,:]) for i in range(outs.shape[0])]
@@ -243,18 +242,18 @@ class TerGenUNet(L.LightningModule):
 ### UNet Architecture Hyperparameter Sets ###
 UNetTiny_blocks = (
     (
-        "DownBlock2D",  # a regular ResNet downsampling block
         "DownBlock2D",
-        "AttnDownBlock2D",  # a ResNet downsampling block with spatial self-attention
         "DownBlock2D",
+        "DownBlock2D",
+        "AttnDownBlock2D",
     ),
     (
-        "UpBlock2D",  # a regular ResNet upsampling block
-        "AttnUpBlock2D",  # a ResNet upsampling block with spatial self-attention
+        "AttnUpBlock2D",
+        "UpBlock2D",
         "UpBlock2D",
         "UpBlock2D",
     ),
-    (32, 32, 32, 64)
+    (16, 16, 32, 32) # requires norm_num_groups = 16 or less
 )
 
 UNetMini_blocks = (

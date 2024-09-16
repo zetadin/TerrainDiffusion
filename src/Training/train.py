@@ -1,6 +1,6 @@
 import torch
-import sys
 import os
+import gc
 import lightning as L
 from lightning.pytorch.callbacks import TQDMProgressBar, LearningRateMonitor
 from lightning.pytorch.callbacks import GradientAccumulationScheduler
@@ -14,7 +14,8 @@ from src.DataSet.DataSet import TiledDataset
 def train(dataset, invTrans,
           nEpochs=1000, nInfer=50, nTrainIter=1000, ls_scheduler_settings = None,
           grad_accumulate_schedule = {0: 1, 100: 2, 150: 4},
-          batch_size=8, blockSet=None, seed=59873):
+          norm_num_groups=32,
+          batch_size=8, blockSet=None, seed=59873, log_name="UNet_default"):
     """
     Runs the training.
 
@@ -26,6 +27,7 @@ def train(dataset, invTrans,
         nTrainIter: number of timesteps during training.
         ls_scheduler_settings: dict of settings for the torch.optim.lr_scheduler.CyclicLR learning rate scheduler
         grad_accumulate_schedule: dict containing epochs and number of batches for gradient accumulation
+        norm_num_groups: number of channels in group normalization
         batch_size: batch size
         blockSet: specification of UNet layer types and numbers of output channels
         seed: seed for torch's global RNG
@@ -36,7 +38,7 @@ def train(dataset, invTrans,
                                           filename='{epoch:06d}',
                                           save_top_k=5, every_n_epochs=5)
     
-    logger = TensorBoardLogger("tb_logs", name="UNet_")
+    logger = TensorBoardLogger("tb_logs", name=log_name)
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
     accumulator = GradientAccumulationScheduler(scheduling=grad_accumulate_schedule)
     trainer = L.Trainer(limit_train_batches=1.0,
@@ -64,7 +66,7 @@ def train(dataset, invTrans,
     if(blockSet is None):
         model = TerGenUNet(tile_size=256,  n_inferences=nInfer, n_iter_train=nTrainIter,
                            ls_scheduler_settings=ls_scheduler_settings,
-                           invTrans=invTrans)
+                           invTrans=invTrans, norm_num_groups=norm_num_groups)
     else:
         down_block_types, up_block_types, block_out_channels = blockSet
         model = TerGenUNet(tile_size=256,  n_inferences=nInfer, n_iter_train=nTrainIter,
@@ -72,7 +74,7 @@ def train(dataset, invTrans,
                            up_block_types=up_block_types,
                            block_out_channels = block_out_channels,
                            ls_scheduler_settings=ls_scheduler_settings,
-                           invTrans=invTrans)
+                           invTrans=invTrans, norm_num_groups=norm_num_groups)
 
     # run trainer
     trainer.fit(model, train_loader, val_loader)
@@ -110,6 +112,10 @@ if __name__ == "__main__":
     print(f"min={torch.min(all_tiles)}")
     print(f"max={torch.max(all_tiles)}")
 
+    # free memory
+    del dataloader, all_tiles
+    _ = gc.collect()
+
     # what should the std be?
     target_std = 0.5
 
@@ -133,10 +139,12 @@ if __name__ == "__main__":
     ls_scheduler_settings = {"base_lr":5e-5, "max_lr":5e-5, "step_size_up":5}
 
     # train the model
-    cur_log_folder = train(nEpochs=30, batch_size=8, nInfer=50,
+    cur_log_folder = train(dataset=ds, invTrans=invTrans,
+                           nEpochs=30, batch_size=8, nInfer=50,
                            blockSet=UNetMini_blocks,
                            ls_scheduler_settings=ls_scheduler_settings,
-                           grad_accumulate_schedule = {0: 1, 10: 2, 20: 4})
+                           grad_accumulate_schedule = {0: 1, 10: 2, 20: 4},
+                           log_name = "Unet_Mini",)
     
     print(f"\n\nDone.")
     exit(0)
