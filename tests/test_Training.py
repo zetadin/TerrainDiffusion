@@ -56,8 +56,8 @@ def test_Training():
                            norm_num_groups = 16,
                            log_name = "unit_test_log",)
     
-    # There should be 5 checkpoints now, one for every 5 epochs of training, up to max of 5
+    # There should be 5 checkpoints now, 4 from saving every 5 epochs, and 1 from copy of last checkpoint
     chpt_files = f"{cur_log_folder}/checkpoints/*.ckpt"
     chpt_files = glob.glob(chpt_files)
     
-    assert(len(chpt_files) == 4)
+    assert(len(chpt_files) == 5)

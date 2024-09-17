@@ -70,10 +70,10 @@ if __name__ == "__main__":
                            grad_accumulate_schedule = {0: 1, 10: 2, 20: 4},
                            log_path = os.path.join( prj_root, "Training_logs"),
 
-                           blockSet = UNetTiny_blocks,  norm_num_groups=16,
-                           log_name = "Unet_Tiny",
-                           # blockSet=UNetMini_blocks,  norm_num_groups=32,
-                           # log_name = "Unet_Mini",
+                        #    blockSet = UNetTiny_blocks,  norm_num_groups=16,
+                        #    log_name = "Unet_Tiny",
+                           blockSet=UNetMini_blocks,  norm_num_groups=32,
+                           log_name = "Unet_Mini",
                            )
     
     print(f"\n\nDone.")

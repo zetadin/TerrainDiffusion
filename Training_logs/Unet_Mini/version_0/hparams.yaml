@@ -1,0 +1,27 @@
+attention_head_dim: 8
+block_out_channels: !!python/tuple
+- 32
+- 32
+- 32
+- 64
+- 64
+down_block_types: !!python/tuple
+- DownBlock2D
+- DownBlock2D
+- AttnDownBlock2D
+- AttnDownBlock2D
+- AttnDownBlock2D
+ls_scheduler_settings:
+  base_lr: 5.0e-05
+  max_lr: 5.0e-05
+  step_size_up: 5
+n_inferences: 50
+n_iter_train: 1000
+norm_num_groups: 32
+tile_size: 256
+up_block_types: !!python/tuple
+- AttnUpBlock2D
+- AttnUpBlock2D
+- AttnUpBlock2D
+- UpBlock2D
+- UpBlock2D
